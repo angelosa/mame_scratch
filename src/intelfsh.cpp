@@ -1,5 +1,10 @@
 // license:BSD-3-Clause
 // copyright-holders:Aaron Giles
+
+// Adds some sloppy emulation for capcom/alien.cpp Flash ROM emulation
+// It's not in main tree because, to begin with, the YMZ transfer is extremely slow for the end user
+// to care.
+
 /*
     Flash ROM emulation
 
