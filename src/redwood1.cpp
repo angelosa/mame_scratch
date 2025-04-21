@@ -54,10 +54,16 @@ void redwood1_device::data_w(u16 data) { space().write_word(m_index, data); }
 
 void redwood1_device::config_map(address_map &map)
 {
+// ...
+//  map(0x0200, 0x0200) Shadow RAM Read Enable Control
+//  map(0x0201, 0x0201) Shadow RAM Write Enable Control
+//  map(0x020e, 0x020e) <reserved>
+//  ^ fake pc9821ne accesses this for bank control and Flash ROM enable
+//    a BIOS section for the JEIDA interface, 4 banks for the MENU, a RAM drive and a "glue logic" bank ...
 }
 
-// NOTE: it's paired with the GOLDEN GATE on pc9821nf only, but that means it Chip Select on
-// access words ONLY
+// NOTE: it's paired with the GOLDEN GATE on pc9821nf only,
+// but that means it Chip Select on access words ONLY regardless of the existance or not.
 
 // void pc9821_note_state::pc9821ne_io(address_map &map)
 //{
