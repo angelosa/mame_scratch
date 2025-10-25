@@ -4,7 +4,7 @@
 // This is a ditched attempt to convert video_r/_w to address_map
 // The thing should be otherwise equivalent to mame git be9721646509e3c3aa548ac57cf7762f2de0c5df
 // It has been ditched because it will cause partial updates issues in sangofgt already,
-// which throws questions about the approach already.
+// which throws questions about the approach.
 
 /**************************************************************************************************
 
