@@ -1,0 +1,61 @@
+// license:BSD-3-Clause
+// copyright-holders:
+/**************************************************************************************************
+
+
+**************************************************************************************************/
+
+#include "emu.h"
+#include "{{ KLASS }}.h"
+
+#define VERBOSE (LOG_GENERAL)
+//#define LOG_OUTPUT_FUNC osd_printf_info
+#include "logmacro.h"
+
+
+DEFINE_DEVICE_TYPE({{ DEVICE }}, {{ KLASS }}_device,   "{{ KLASS }}",   "{{ LONGNAME }}")
+
+
+{{ KLASS }}_device::{{ KLASS }}_device(const machine_config &mconfig, device_type type, const char *tag, device_t *owner, uint32_t clock)
+	: pci_card_device(mconfig, type, tag, owner, clock)
+{
+}
+
+{{ KLASS }}_device::{{ KLASS }}_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock)
+	: {{ KLASS }}_device(mconfig, {{ DEVICE }}, tag, owner, clock)
+{
+	set_ids(0x{{ VENDORID }}{{ DEVICEID }}, 0x00, 0x{{ KLASSCODE }}, 0x{{ VENDORID }}{{ DEVICEID }});
+}
+
+void {{ KLASS }}_device::device_add_mconfig(machine_config &config)
+{
+
+}
+
+void {{ KLASS }}_device::device_start()
+{
+	pci_card_device::device_start();
+
+//	add_map( size, M_MEM, FUNC({{ KLASS }}_device::map));
+
+	// INTA#
+//	intr_pin = 1;
+}
+
+void {{ KLASS }}_device::device_reset()
+{
+	pci_card_device::device_reset();
+
+	// TODO: to be checked
+	command = 0x0000;
+	command_mask = 0;
+	status = 0x0000;
+
+	remap_cb();
+}
+
+void {{ KLASS }}_device::config_map(address_map &map)
+{
+	pci_card_device::config_map(map);
+}
+
