@@ -1,15 +1,12 @@
-// license:BSD-3-Clause
+// license:{{ LICENSE }}
 // copyright-holders:
-/**************************************************************************************************
-
-
-**************************************************************************************************/
 
 #include "emu.h"
 #include "{{ KLASS }}.h"
 
 #define VERBOSE (LOG_GENERAL)
 //#define LOG_OUTPUT_FUNC osd_printf_info
+
 #include "logmacro.h"
 
 
@@ -38,21 +35,33 @@ void {{ KLASS }}_device::device_start()
 
 //	add_map( size, M_MEM, FUNC({{ KLASS }}_device::map));
 
-	// INTA#
-//	intr_pin = 1;
+{% if INTR_PIN != "0" %}
+	// {{ INTR_PIN_NAME }}
+	intr_pin = {{ INTR_PIN }};
+{% else %}
+	intr_pin = 0;
+{% endif %}
+{% if MIN_GNT != "0" %}	minimum_grant = 0x{{ MIN_GNT }};{% endif %}
+{% if MAX_LAT != "0" %}	maximum_latency = 0x{{ MAX_LAT }};{% endif %}
 }
 
 void {{ KLASS }}_device::device_reset()
 {
 	pci_card_device::device_reset();
 
-	// TODO: to be checked
 	command = 0x0000;
-	command_mask = 0;
-	status = 0x0000;
+	command_mask = 0x{{ COMMAND_MASK }};
+	status = 0x0{{ STATUS }};
 
 	remap_cb();
 }
+
+{% if CAPPTR != "0" %}
+u8 {{ KLASS }}_device::capptr_r()
+{
+	return 0x{{ CAPPTR }};
+}
+{% endif %}
 
 void {{ KLASS }}_device::config_map(address_map &map)
 {

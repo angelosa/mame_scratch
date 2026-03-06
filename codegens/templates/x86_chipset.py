@@ -9,13 +9,13 @@ context = {
     "KLASS": input("klass (_device prefix, lowercase):"),
     "DEVICE": input("device (uppercase):").upper(),
     "LONGNAME": input("device long name:"),
+	"LICENSE": input("SPDX license (enter for default BSD-3-Clause)") or "BSD-3-Clause"
 }
 
 result_cpp = template_cpp.render(context)
 template_h = environment.get_template("x86_chipset.h.jinja")
 result_h = template_h.render(context)
 
-# TODO: configuration join
 with open(context["KLASS"] + ".cpp", mode="w", encoding="utf-8") as results:
     results.write(result_cpp)
 
