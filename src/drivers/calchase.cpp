@@ -3,7 +3,7 @@
 
 // experimental conversion to PCI, games truly wants their BIOSes (and Trident being really PCI ...)
 
-/************************************************************************************
+/**************************************************************************************************
 
 California Chase (c) 1999 The Game Room
 Eggs Playing Chicken (c) 2002 The Game Room
@@ -22,13 +22,16 @@ Notes:
 - calchase: type boot to load game
 
 TODO:
-- get Win 98 to boot (most of Windows 98 copy is damaged inside current HDD dump);
-- Various graphics bugs (title screen uses ROZ?);
-- fix 129 Hz refresh rate bug;
-- inputs (is there a service mode?)
+- calchase: needs a redump, most of Win98 is damaged (has no folder structure);
+- calchase: requires franticf style wheel, service mode just black screen, has various gfx bugs
+  during gameplay;
 - hostinv: is an El Torito CD-ROM, can't boot here until PCI section is rewritten;
+- eggsplc: fix input labels (needs card subclassing), ticket dispenser, should require a default
+  NVRAM (has "63" for every winning zone, unlikely), becomes unwinnable after first ticket
+  win (propagates to successive reboots), EMM386 fails during boot, should be heavily idle
+  skippable;
 
-=====================================================================================
+===================================================================================================
 
 California Chase
 The Game Room, 1999
@@ -163,8 +166,7 @@ protected:
 
 	virtual void device_add_mconfig(machine_config &config) override ATTR_COLD;
 
-	// TODO: implement me once conversion to PCI kicks in
-//  virtual void remap(int space_id, offs_t start, offs_t end) override;
+    virtual void remap(int space_id, offs_t start, offs_t end) override;
 private:
 	required_ioport_array<5> m_iocard;
 	std::unique_ptr<uint8_t[]> m_nvram_data;
@@ -205,14 +207,22 @@ void isa16_calchase_jamma_if::device_start()
 	subdevice<nvram_device>("nvram")->set_base(m_nvram_data.get(), 0x800);
 
 	m_hb_timer = timer_alloc(FUNC(isa16_calchase_jamma_if::heartbeat_cb), this);
-
-	m_isa->install_memory(0x000d0000, 0x000d0fff, *this, &isa16_calchase_jamma_if::io_map);
 }
 
 void isa16_calchase_jamma_if::device_reset()
 {
 	// TODO: timing and actual source
 	m_hb_timer->adjust(attotime::from_hz(60), 0, attotime::from_hz(60));
+
+   	remap(AS_PROGRAM, 0, 0xfffff);
+}
+
+void isa16_calchase_jamma_if::remap(int space_id, offs_t start, offs_t end)
+{
+	if (space_id == AS_PROGRAM)
+	{
+		m_isa->install_memory(0x000d0000, 0x000d0fff, *this, &isa16_calchase_jamma_if::io_map, 0xffff);
+	}
 }
 
 template <unsigned N>
@@ -553,7 +563,6 @@ void calchase_state::hostinv(machine_config &config)
 ROM_START( calchase )
 	ROM_REGION32_LE( 0x20000, "pci:07.0", 0 )
 	ROM_LOAD( "mb_bios.bin", 0x00000, 0x20000, CRC(dea7a51b) SHA1(e2028c00bfa6d12959fc88866baca8b06a1eab68) )
-//	ROM_LOAD("award_1998_pci-pnp_586_223123413.bin", 0x00000, 0x20000, CRC(d30fe6c2) SHA1(022cf24d982b82e4c13ebbe974adae3a1638d1cd))
 
 	ROM_REGION( 0x800, "isa1:calchase_jamma_if:nvram", 0 )
 	ROM_LOAD( "ds1220y_nv.bin", 0x000, 0x800, CRC(7912c070) SHA1(b4c55c7ca76bcd8dad1c4b50297233349ae02ed3) )
@@ -565,7 +574,6 @@ ROM_END
 ROM_START( hostinv )
 	ROM_REGION32_LE( 0x20000, "pci:07.0", 0 )
 	ROM_LOAD( "hostinv_bios.bin", 0x000000, 0x020000, CRC(5111e4b8) SHA1(20ab93150b61fd068f269368450734bba5dcb284) )
-//	ROM_LOAD("award_1998_pci-pnp_586_223123413.bin", 0x00000, 0x20000, CRC(d30fe6c2) SHA1(022cf24d982b82e4c13ebbe974adae3a1638d1cd))
 
 	ROM_REGION( 0x800, "isa1:calchase_jamma_if:nvram", ROMREGION_ERASEFF )
 	ROM_LOAD( "ds1220y_hostinv.bin", 0x000, 0x800, NO_DUMP )
@@ -588,6 +596,6 @@ ROM_END
 } // Anonymous namespace
 
 
-GAME( 1998, hostinv,  0, hostinv,  0, calchase_state, empty_init,  ROT0, "The Game Room", "Host Invaders",        MACHINE_NOT_WORKING|MACHINE_IMPERFECT_GRAPHICS )
-GAME( 1999, calchase, 0, calchase, 0, calchase_state, empty_init,  ROT0, "The Game Room", "California Chase",     MACHINE_NOT_WORKING|MACHINE_IMPERFECT_GRAPHICS )
-GAME( 2002, eggsplc,  0, calchase, 0, calchase_state, empty_init,  ROT0, "The Game Room", "Eggs Playing Chicken", 0 )
+GAME( 1998, hostinv,  0, hostinv,  0, calchase_state, empty_init,  ROT0, "The Game Room", "Host Invaders",        MACHINE_NOT_WORKING )
+GAME( 1999, calchase, 0, calchase, 0, calchase_state, empty_init,  ROT0, "The Game Room", "California Chase",     MACHINE_NOT_WORKING )
+GAME( 2002, eggsplc,  0, calchase, 0, calchase_state, empty_init,  ROT0, "The Game Room", "Eggs Playing Chicken", MACHINE_NOT_WORKING )
